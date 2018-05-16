@@ -42,8 +42,8 @@ namespace Quest
         {
             var rewardManager = new RewardManager();
 
-            rewardManager.AddApplier<GoldReward>(new GoldRewarder(player.Inventory));
-            rewardManager.AddApplier<ItemReward>(new ItemRewarder(player.Inventory));
+            rewardManager.AddRewarder<GoldReward>(new GoldRewarder(player.Inventory));
+            rewardManager.AddRewarder<ItemReward>(new ItemRewarder(player.Inventory));
 
             questManager = new QuestManager(player, rewardManager);
         }

@@ -5,19 +5,19 @@ namespace Quest.Rewards
 {
     class RewardManager
     {
-        Dictionary<Type, object> appliers = new Dictionary<Type, object>();
+        Dictionary<Type, object> rewarders = new Dictionary<Type, object>();
 
-        public void AddApplier<T>(IRewarder<T> applier) where T: Reward
+        public void AddRewarder<T>(IRewarder<T> applier) where T: Reward
         {
-            appliers.Add(typeof(T), applier);
+            rewarders.Add(typeof(T), applier);
         }
 
-        public IRewarder<T> GetApplier<T>() where T: Reward
+        public IRewarder<T> GetRewarder<T>() where T: Reward
         {
-            if (!appliers.TryGetValue(typeof(T), out object applier))
+            if (!rewarders.TryGetValue(typeof(T), out object rewarder))
                 return null;
             
-            return applier as IRewarder<T>;
+            return rewarder as IRewarder<T>;
         }
     }
 }
