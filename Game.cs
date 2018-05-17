@@ -1,5 +1,6 @@
 using System;
 using Quest.IO;
+using System.Linq;
 using Quest.Items;
 using Quest.Rewards;
 using Quest.Missions;
@@ -29,8 +30,6 @@ namespace Quest
             CreatePlayer();
             MakeQuestManager();
             MakeQuestGenerator();
-
-            questManager.AddQuest(questGenerator.Generate());
         }
 
         void CreatePlayer()
@@ -40,40 +39,44 @@ namespace Quest
 
         void MakeQuestManager()
         {
+            questManager = new QuestManager(player);
+        }
+
+        void MakeQuestGenerator()
+        {
             var rewardManager = new RewardManager();
 
             rewardManager.AddRewarder<GoldReward>(new GoldRewarder(player.Inventory));
             rewardManager.AddRewarder<ItemReward>(new ItemRewarder(player.Inventory));
 
-            questManager = new QuestManager(player, rewardManager);
-        }
+            questGenerator = new QuestGenerator(rewardManager);
 
-        void MakeQuestGenerator()
-        {
-            questGenerator = new QuestGenerator();
-
-            questGenerator.AddMissionGenerator(
+            questGenerator.AddMissionGenerator<DefeatNpc>(
                 new DefeatNpcGenerator(
                     new NpcFactory()
                 )
+            );
+
+            questGenerator.AddRewardGenerator<GoldReward>(
+                new GoldRewardGenerator(150, 0.2f)
             );
         }
 
         void Update()
         {
-            var selection = new Selection("Was möchtest du tun?", new string[] {
+            int option = Selection.Run("Was möchtest du tun?", new string[] {
                 "Aktive Quests auflisten",
                 "Neue Quest starten",
                 "Inventar öffnen",
             });
-
-            int option = selection.GetOption();
 
             switch (option) {
                 case 1:
                     ListActiveQuests();
                     break;
                 case 2:
+                    GenerateQuest();
+                    ListActiveQuests();
                     break;
                 case 3:
                     break;
@@ -89,7 +92,9 @@ namespace Quest
 
         void ListActiveQuests()
         {
-            foreach (Quest quest in questManager.Quests) {
+            for (int i = 0; i < questManager.Quests.Length; ++i) {
+                Quest quest = questManager.Quests[i];
+
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($"Quest: {quest.Name}");
 
@@ -112,6 +117,47 @@ namespace Quest
             }
 
             Console.ForegroundColor = ConsoleColor.White;
+
+            if (questManager.Quests.Length == 0)
+                return;
+
+            int option = Selection.Run("Was möchtest du tun?", new string[] {
+                "Quest auswählen",
+                "Zurück"
+            });
+
+            switch (option) {
+                case 1:
+                    SelectQuest();
+                    break;
+                case 2:
+                    break;
+            }
+        }
+
+        void GenerateQuest()
+        {
+            questManager.AddQuest(questGenerator.Generate());
+        }
+
+        void SelectQuest()
+        {
+            int option = Selection.Run("Wähle eine Quest", questManager.Quests.Select(q => q.Name).ToArray());
+
+            Quest quest = questManager.Quests[option - 1];
+
+            option = Selection.Run(quest.Name, new string[] {
+                "Quest abbrechen",
+                "Zurück",
+            });
+
+            switch (option) {
+                case 1:
+                    questManager.Abort(quest);
+                    break;
+                case 2:
+                    break;
+            }
         }
     }
 }

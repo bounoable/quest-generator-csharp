@@ -14,6 +14,8 @@ namespace Quest.IO
             this.options = options ?? new string[0];
         }
 
+        public static int Run(string message, string[] options) => new Selection(message, options).GetOption();
+
         public int GetOption()
         {
             if (message != null)
@@ -29,7 +31,7 @@ namespace Quest.IO
             while (!int.TryParse(Console.ReadLine(), out input) || !IsValidOption(input))
                 Console.Write("Ungültige Eingabe: ");
             
-            Console.WriteLine("\n");
+            Console.Clear();
             
             return input;
         }

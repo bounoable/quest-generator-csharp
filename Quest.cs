@@ -7,6 +7,7 @@ namespace Quest
 {
     class Quest
     {
+        public int Level { get; }
         public string Name { get; }
         public Reward[] Rewards => rewards.ToArray();
         public Mission[] Missions => missions.ToArray();
@@ -15,8 +16,9 @@ namespace Quest
         List<Reward> rewards = new List<Reward>();
         List<Mission> missions = new List<Mission>();
 
-        public Quest(string name)
+        public Quest(int level, string name)
         {
+            Level = level;
             Name = name;
         }
 

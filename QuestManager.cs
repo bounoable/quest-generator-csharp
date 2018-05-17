@@ -10,15 +10,14 @@ namespace Quest
         public Quest[] Quests => quests.ToArray();
 
         Player player;
-        RewardManager rewardManager;
         HashSet<Quest> quests = new HashSet<Quest>();
 
-        public QuestManager(Player player, RewardManager rewardManager)
+        public QuestManager(Player player)
         {
             this.player = player;
-            this.rewardManager = rewardManager;
         }
 
         public void AddQuest(Quest quest) => quests.Add(quest);
+        public void Abort(Quest quest) => quests.Remove(quest);
     }
 }
